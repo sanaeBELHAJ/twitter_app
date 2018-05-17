@@ -52,53 +52,118 @@ io.sockets.on('connection', function (socket) {
             params.result_type = datas.type;
         //console.log(params);
 
-        try {
-            // Récupération des tweets de l'API
-            await T.get('search/tweets', params, async function(err, data, response){
-        
-                //ID de clé primaire = ID du tweet
-                data.statuses.forEach(function(element){
-                    element._id = element.id;
-                });
-        
-                //Connexion à la BDD
-                await MongoClient.connect(url, function(err, client) {         
-                    const db = client.db(dbName);
-                    const collection = db.collection('tweet');
-                    //Insertion des tweets en BDD
-                    collection.insertMany(data.statuses);
+        // Récupération des tweets de l'API
+        await T.get('search/tweets', params, async function(err, data, response){
+    
+            socket.highcharts = {};
 
-                    //Affichage des tweets de la BDD
-                    collection.find({
-                        text: new RegExp(datas.keyword)
-                    })
-                    .project({ 
-                        _id: 0,
-                        lang: 1,
-                        retweet_count: 1     
-                    })
-                    .toArray(function(err, result) {
-                        if(err) 
-                            throw err;
-                        result.forEach(function(data){
-                            data.name = data.lang;
-                            delete data.lang;
-                            data.y = data.retweet_count;
-                            delete data.retweet_count;
-                            data.sliced = true;
-                            data.selected = false;
-                        });
-                        console.log(result);
-                        socket.emit('search', result);
+            //ID de clé primaire = ID du tweet
+            data.statuses.forEach(function(element){
+                element._id = element.id;
+            });
+            
+            //Connexion à la BDD
+            MongoClient.connect(url, function(err, client) {
+                const db = client.db(dbName);
+                const collection = db.collection('tweet');
+                //Insertion des tweets en BDD
+                collection.insertMany(data.statuses);
+
+                //Affichage des meilleurs retweets de la BDD
+                collection.find({
+                    text: new RegExp(datas.keyword)
+                })
+                .project({ 
+                    _id: 0,
+                    lang: 1,
+                    retweet_count: 1     
+                })
+                .toArray(function(err, result) {
+                    if(err) 
+                        throw err;
+
+                    result.forEach(function(data){
+                        data.name = data.lang;
+                        delete data.lang;
+                        data.y = data.retweet_count;
+                        delete data.retweet_count;
+                        data.sliced = true;
+                        data.selected = false;
                     });
-
-                    client.close();
+                    socket.highcharts.first = result;
+                    socket.emit('search', socket.highcharts); //TODO : virer cette ligne pour n'envoyer qu'à la fin des requetes
                 });
-            });        
-        } catch(er){
-            console.log("error: " +cont);
-            return er;
-        }       
+
+                //Affichage des tweets de la BDD
+                collection.find({
+                    text: new RegExp(datas.keyword)
+                })
+                .project({ 
+                    _id: 0,
+                    lang: 1,
+                    retweet_count: 1     
+                })
+                .toArray(function(err, result) {
+                    if(err) 
+                        throw err;
+                    socket.highcharts.second = result;                       
+                });
+
+                //TODO : pb de BSON-texte
+                /*collection.aggregate([
+                    {
+                        "$project": {
+                            "y": {
+                                "$year": "$created_at"
+                            },
+                            "m": {
+                                "$month": "$created_at"
+                            },
+                            "d": {
+                                "$dayOfMonth": "$created_at"
+                            }
+                        }
+                    },
+                    {
+                        "$group": {
+                            "_id": {
+                                "year": "$y",
+                                "month": "$m",
+                                "day": "$d"
+                            },
+                            count: {
+                                "$sum": 1
+                            }
+                        }
+                    },
+                    {
+                        $sort: {
+                            "_id.year": 1,
+                            "_id.month": 1,
+                            "_id.day": 1
+                        }
+                    }
+                ]).toArray(function(err, result) {
+                    if(err)
+                        throw err;
+                    result.forEach(function(data){
+                        data.name = data.lang;
+                        delete data.lang;
+                        data.y = data.retweet_count;
+                        delete data.retweet_count;
+                        data.sliced = true;
+                        data.selected = false;
+                    });
+                    console.log(result);
+                    socket.highcharts.third = result; 
+                });*/
+
+                //TODO : faire envoyer le socket.highcharts seulement APRES les requetes BDD
+                //socket.emit('search', socket.highcharts);
+                client.close();
+            });
+        });        
+      
     });
 });
 
