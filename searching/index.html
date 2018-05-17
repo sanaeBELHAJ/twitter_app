@@ -111,10 +111,10 @@
                         type: 'column'
                     },
                     title: {
-                        text: 'Browser market shares. January, 2015 to May, 2015'
+                        text: 'Le nombre de partage par twit'
                     },
                     subtitle: {
-                        text: 'Click the columns to view versions. Source: <a href="http://netmarketshare.com">netmarketshare.com</a>.'
+                        text: ''
                     },
                     xAxis: {
                         type: 'category'
@@ -148,18 +148,7 @@
                     optionsHighCharts.series = [{
                         type: 'pie',
                         name: 'Browser share',
-                        data: [
-                            ['Anglais', 45.0],
-                            ['Français', 26.8],
-                            {
-                                name: 'Japonais',
-                                y: 12.8,
-                                sliced: true,
-                                selected: true
-                            },
-                            ['Espagnole', 8.5],
-                            ['Chinois', 6.2],
-                        ]
+                        data: data
                     }];
                     optionsHighCharts2.series = [{
                         name: 'Brands',

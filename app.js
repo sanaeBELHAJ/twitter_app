@@ -83,8 +83,10 @@ io.sockets.on('connection', function (socket) {
                         result.forEach(function(data){
                             data.name = data.lang;
                             delete data.lang;
-                            data.value = data.retweet_count;
+                            data.y = data.retweet_count;
                             delete data.retweet_count;
+                            data.sliced = true;
+                            data.selected = false;
                         });
                         console.log(result);
                         socket.emit('search', result);
