@@ -58,6 +58,7 @@
         <div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
         <div id="container3" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
         <div id="container4" style="min-width: 310px; height: 400px; margin: 0 auto;">
+            <h3 style="text-align: center">Top 10 des meilleurs tweets sur ce mot-clé</h3>
             <table>
                 <thead>
                     <tr>
@@ -262,7 +263,19 @@
                     var tbody = "";
                     $.each(data.fourth, function(key, value){
                         tbody += "<tr>";
-                            tbody += "<td>"+value.created_at+"</td>";
+                            var date = new Date(value.created_at);
+                            var s = date.getSeconds();
+                            var m = date.getMinutes();
+                            var h = date.getHours();
+                            var dd = date.getDate();
+                            var mm = date.getMonth()+1; //January is 0!
+                            var yyyy = date.getFullYear();
+                            if(dd<10)
+                                dd = '0'+dd;
+                            if(mm<10)
+                                mm = '0'+mm;
+
+                            tbody += "<td>"+mm + '/' + dd + '/' + yyyy+" à "+h+"h"+m+"m"+s+"s</td>";
                             tbody += "<td>"+value.user.name+"</td>";
                             tbody += "<td>"+value.text+"</td>";
                             tbody += "<td>"+value.favorite_count+"</td>";

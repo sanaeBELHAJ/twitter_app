@@ -82,7 +82,7 @@ io.sockets.on('connection', function (socket) {
                     });
                 });
 
-                //Affichage des meilleurs retweets de la BDD
+                //GRAPHE 1 : Affichage des meilleurs retweets de la BDD
                 collectionTweet.find({
                     text: new RegExp(datas.keyword)
                 })
@@ -106,7 +106,7 @@ io.sockets.on('connection', function (socket) {
                     socket.highcharts.first = result;
                 });
 
-                //Affichage du nombre de retweets de la BDD
+                //GRAPHE 2 : Affichage du nombre de retweets de la BDD
                 collectionTweet.find({
                     text: new RegExp(datas.keyword)
                 })
@@ -121,7 +121,7 @@ io.sockets.on('connection', function (socket) {
                     //socket.highcharts.second = result;                       
                 });
 
-                //Evolution du nombre de tweet dans la semaine
+                //GRAPHE 3 :Evolution du nombre de tweet dans la semaine
                 collectionTweet.aggregate([
                     {
                         "$project": {
@@ -166,7 +166,7 @@ io.sockets.on('connection', function (socket) {
                     socket.highcharts.third = list; 
                 });
 
-                //Affichage des 10 derniers tweets les plus populaires
+                //GRAPHE 4 : Affichage des 10 derniers tweets les plus populaires
                 collectionTweet.find({
                     text: new RegExp(datas.keyword)
                 })
@@ -178,7 +178,7 @@ io.sockets.on('connection', function (socket) {
                     favorite_count: 1,
                     retweet_count: 1
                 })
-                .sort({ favorite_count: -1 })
+                .sort({ favorite_count: -1, retweet_count: -1 })
                 .limit(3)
                 .toArray(function(err, result) {
                     if(err) 
