@@ -175,8 +175,10 @@ io.sockets.on('connection', function (socket) {
                     created_at: 1,
                     text: 1,
                     "user.name": 1,
+                    "user.screen_name": 1,
                     favorite_count: 1,
-                    retweet_count: 1
+                    retweet_count: 1,
+                    id_str: 1
                 })
                 .sort({ favorite_count: -1, retweet_count: -1 })
                 .limit(3)

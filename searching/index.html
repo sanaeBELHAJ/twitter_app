@@ -277,7 +277,7 @@
 
                             tbody += "<td>"+mm + '/' + dd + '/' + yyyy+" à "+h+"h"+m+"m"+s+"s</td>";
                             tbody += "<td>"+value.user.name+"</td>";
-                            tbody += "<td>"+value.text+"</td>";
+                            tbody += "<td><a target='_blank' href='https://twitter.com/"+value.user.screen_name+"/status/"+value.id_str+"'>"+value.text+"</a></td>";
                             tbody += "<td>"+value.favorite_count+"</td>";
                             tbody += "<td>"+value.retweet_count+"</td>";
                         tbody += "</tr>"
