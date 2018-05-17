@@ -11,19 +11,15 @@
                     <legend>Recherche de tweets</legend>
                     <label>
                         Mot-clé :
-                        <input type="text" name="keyword">
-                    </label>
-                    <label>
-                        Nombre :
-                        <input type="number" name="quantity">
+                        <input type="text" name="keyword" required>
                     </label>
                     <label>
                         Langage :
-                        <select name="language">
-                            <option value="eu"></option>
-                            <option value="eu"></option>
-                            <option value="eu"></option>
-                            <option value="eu"></option>
+                        <select name="lang">
+                            <option value="" selected></option>
+                            <option value="es">Espagnol</option>
+                            <option value="fr">Francais</option>
+                            <option value="en">Anglais</option>
                         </select>
                     </label>
                     <label>
@@ -33,10 +29,6 @@
                             <option value="recent">Récent</option>
                             <option value="popular">Populaire</option>
                         </select>
-                    </label>
-                    <label>
-                        Date maximale de publication :
-                        <input type="date" name="date_pub">
                     </label>
                     <br>
                     <input type="submit" value="Envoyer">
@@ -75,7 +67,7 @@
                 </tbody>
             </table>
         </div>
-        <div id="container6" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="container5" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
         
 
         <script type="text/javascript">
@@ -210,9 +202,8 @@
                         }
                     }
                 };
-
-                //chart 3
-                var optionsHighCharts6 = {
+                //chart 5
+                var optionsHighCharts5 = {
                     chart: {
                         type: 'column'
                     },
@@ -221,8 +212,8 @@
                     },
                     xAxis: {
                         categories: [
-                            'username 1',
-                            'username 2',
+                            'Followers',
+                            'Publications',
                         ],
                         crosshair: true
                     },
@@ -239,7 +230,6 @@
                         }
                     }
                 };
-
 
                 // Quand on récupère des datas, on met dans des graphs
                 socket.on('search', function(data) {
@@ -280,30 +270,16 @@
                     optionsHighCharts3.series = [{
                         name: 'Volume',
                         data: data.third
-                        /*[
-                            5113, 5113, 4954, 4804, 4761, 4717, 4368
-                        ]*/
                     }];
+                    optionsHighCharts5.series = data.fifth;
 
-                    optionsHighCharts6.series = [{
-                        name: 'Followers Count',
-                        data: data.followers_count
-
-                    }, {
-                        name: 'tweets Count',
-                        data: data.statuses_count
-
-                    }]
-
-                    //Camembert
+                    //Graph 1 : Camembert
                     Highcharts.chart('container', optionsHighCharts);
-                    //Colonne
+                    //Graph 2 : Colonne
                     Highcharts.chart('container2', optionsHighCharts2);
-                    //Courbe
+                    //Graph 3 : Courbe
                     Highcharts.chart('container3', optionsHighCharts3);
-
-                    Highcharts.chart('container6', optionsHighCharts6);
-                    //Tableau
+                    //Graph 4 : Tableau
                     var tbody = "";
                     $.each(data.fourth, function(key, value){
                         tbody += "<tr>";
@@ -327,6 +303,8 @@
                         tbody += "</tr>"
                     });
                     $("#container4 table tbody").html(tbody);
+                    //Graph 5 : Colonne
+                    Highcharts.chart('container5', optionsHighCharts5);
                 });
             });
         </script>       
