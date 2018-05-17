@@ -60,17 +60,20 @@ io.sockets.on('connection', function (socket) {
             //ID de clé primaire = ID du tweet
             data.statuses.forEach(function(element){
                 element._id = element.id;
+                element.created_at = new Date(element.created_at);
             });
             
             //Connexion à la BDD
             MongoClient.connect(url, function(err, client) {
                 const db = client.db(dbName);
-                const collection = db.collection('tweet');
+                const collectionTweet = db.collection('tweet');
+                const collectionUser = db.collection('user');
+
                 //Insertion des tweets en BDD
-                collection.insertMany(data.statuses);
+                collectionTweet.insertMany(data.statuses);
 
                 //Affichage des meilleurs retweets de la BDD
-                collection.find({
+                collectionTweet.find({
                     text: new RegExp(datas.keyword)
                 })
                 .project({ 
@@ -91,11 +94,11 @@ io.sockets.on('connection', function (socket) {
                         data.selected = false;
                     });
                     socket.highcharts.first = result;
-                    socket.emit('search', socket.highcharts); //TODO : virer cette ligne pour n'envoyer qu'à la fin des requetes
+                    //socket.emit('search', socket.highcharts); //TODO : virer cette ligne pour n'envoyer qu'à la fin des requetes
                 });
 
                 //Affichage des tweets de la BDD
-                collection.find({
+                collectionTweet.find({
                     text: new RegExp(datas.keyword)
                 })
                 .project({ 
@@ -106,11 +109,10 @@ io.sockets.on('connection', function (socket) {
                 .toArray(function(err, result) {
                     if(err) 
                         throw err;
-                    socket.highcharts.second = result;                       
+                    //socket.highcharts.second = result;                       
                 });
 
-                //TODO : pb de BSON-texte
-                /*collection.aggregate([
+                collectionTweet.aggregate([
                     {
                         "$project": {
                             "y": {
@@ -154,9 +156,10 @@ io.sockets.on('connection', function (socket) {
                         data.sliced = true;
                         data.selected = false;
                     });
-                    console.log(result);
                     socket.highcharts.third = result; 
-                });*/
+                    console.log(socket.highcharts);
+                    socket.emit('search', socket.highcharts);
+                });
 
                 //TODO : faire envoyer le socket.highcharts seulement APRES les requetes BDD
                 //socket.emit('search', socket.highcharts);
