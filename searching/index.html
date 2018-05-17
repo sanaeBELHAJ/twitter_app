@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
+        <title>Twitter big data</title>
 	</head>
     <body>
         <div id="apitweet">
@@ -74,6 +75,7 @@
                 </tbody>
             </table>
         </div>
+        <div id="container6" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
         
 
         <script type="text/javascript">
@@ -209,6 +211,36 @@
                     }
                 };
 
+                //chart 3
+                var optionsHighCharts6 = {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: 'Tweets\' count of most popular users'
+                    },
+                    xAxis: {
+                        categories: [
+                            'username 1',
+                            'username 2',
+                        ],
+                        crosshair: true
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: ''
+                        }
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    }
+                };
+
+
                 // Quand on récupère des datas, on met dans des graphs
                 socket.on('search', function(data) {
                     optionsHighCharts.series = [{
@@ -253,12 +285,24 @@
                         ]*/
                     }];
 
+                    optionsHighCharts6.series = [{
+                        name: 'Followers Count',
+                        data: data.followers_count
+
+                    }, {
+                        name: 'tweets Count',
+                        data: data.statuses_count
+
+                    }]
+
                     //Camembert
                     Highcharts.chart('container', optionsHighCharts);
                     //Colonne
                     Highcharts.chart('container2', optionsHighCharts2);
                     //Courbe
                     Highcharts.chart('container3', optionsHighCharts3);
+
+                    Highcharts.chart('container6', optionsHighCharts6);
                     //Tableau
                     var tbody = "";
                     $.each(data.fourth, function(key, value){
