@@ -177,8 +177,10 @@ io.sockets.on("connection", function(socket) {
                     created_at: 1,
                     text: 1,
                     "user.name": 1,
+                    "user.screen_name": 1,
                     favorite_count: 1,
-                    retweet_count: 1
+                    retweet_count: 1,
+                    id_str: 1
                 })
                 .sort({ favorite_count: -1, retweet_count: -1 })
                 .limit(3)
@@ -186,8 +188,34 @@ io.sockets.on("connection", function(socket) {
                     if(err) 
                         throw err;
                     socket.highcharts.fourth = result;
-                    console.log(socket.highcharts);
+                   //console.log(socket.highcharts);
                     socket.emit('search', socket.highcharts);                   
+                });
+
+                //Affichage des 10 derniers tweets les plus populaires
+                collectionUser.find({
+                    followers_count: {$gte: 50000}
+                })
+                .project({ 
+                    _id: 0, 
+                    name: 1,
+                    followers_count: 1,
+                    statuses_count: 1
+                })
+                .sort({ followers_count: -1 })
+                .limit(3)
+                .toArray(function(err, result) {
+                    if(err) 
+                        throw err;
+
+                    socket.highcharts.followers_count = []
+                    socket.highcharts.tweets_count = []
+
+                    result.forEach(function(data){
+                        socket.highcharts.followers_count.push(data.followers_count);
+                        socket.highcharts.tweets_count.push(data.statuses_count);
+                    });
+                                 
                 });
 
                 //TODO : faire envoyer le socket.highcharts seulement APRES les requetes BDD
