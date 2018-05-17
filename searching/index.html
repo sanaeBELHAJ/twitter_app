@@ -169,7 +169,7 @@
                         },
                         labels: {
                             formatter: function () {
-                                return this.value / 100;
+                                return this.value;
                             }
                         }
                     },
@@ -231,10 +231,10 @@
                     }];      
                     optionsHighCharts3.series = [{
                         name: 'Volume',
-                        data: /*data.third*/
-                        [
+                        data: data.third
+                        /*[
                             5113, 5113, 4954, 4804, 4761, 4717, 4368
-                        ]
+                        ]*/
                     }];
 
                     Highcharts.chart('container', optionsHighCharts);

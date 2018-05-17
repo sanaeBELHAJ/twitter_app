@@ -153,15 +153,12 @@ io.sockets.on('connection', function (socket) {
                 ]).toArray(function(err, result) {
                     if(err)
                         throw err;
+                        console.log(result);
+                    var list = [];
                     result.forEach(function(data){
-                        data.name = data.lang;
-                        delete data.lang;
-                        data.y = data.retweet_count;
-                        delete data.retweet_count;
-                        data.sliced = true;
-                        data.selected = false;
+                        list.push(data.count);
                     });
-                    socket.highcharts.third = result; 
+                    socket.highcharts.third = list; 
                     console.log(socket.highcharts);
                     socket.emit('search', socket.highcharts);
                 });
