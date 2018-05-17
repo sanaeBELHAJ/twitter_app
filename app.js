@@ -96,6 +96,34 @@ io.sockets.on("connection", function(socket) {
             });
             socket.highcharts.first = result;
           });
+        collectionTweet.distinct(
+          "lang",
+          { text: new RegExp(datas.keyword) },
+          function(err, result) {
+            if (err) throw err;
+            result.forEach(function(data) {
+              collectionTweet.count(
+                {
+                  $and: [
+                    { lang: data.lang },
+                    { text: new RegExp(datas.keyword) }
+                  ]
+                },
+                function(err, count) {
+                  if (err) throw err;
+                  data.name = data.lang;
+                  delete data.lang;
+                  console.log(count);
+
+                  data.value = count;
+                  delete count;
+                }
+              );
+              console.log(data);
+            });
+          }
+        );
+
         //GRAPHE 2 : Affichage du nombre de retweets de la BDD
         collectionTweet
           .find({
