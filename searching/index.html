@@ -52,8 +52,29 @@
         <script src="searching/code/modules/exporting.js"></script>
         <script src="searching/code/modules/data.js"></script>
         <script src="searching/code/modules/drilldown.js"></script>
+        <script src="searching/code/modules/export-data.js"></script>
+        
         <div id="container" style="height: 400px"></div>
         <div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="container3" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="container4" style="min-width: 310px; height: 400px; margin: 0 auto;">
+            <h3 style="text-align: center">Top 10 des meilleurs tweets sur ce mot-clé</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Utilisateur</th>
+                        <th>Message</th>
+                        <th>Nombre de like</th>
+                        <th>Nombre de retweet</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                </tbody>
+            </table>
+        </div>
+        
 
         <script type="text/javascript">
             $(document).ready(function(){
@@ -88,7 +109,7 @@
                         }
                     },
                     title: {
-                        text: 'Les langues les plus utilisant de ce mot'
+                        text: 'Les régions utilisant le plus ce mot-clé'
                     },
                     tooltip: {
                         pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -105,16 +126,16 @@
                         }
                     }
                 };
-                //chart2
+                //chart 2
                 var optionsHighCharts2 = {
                     chart: {
                         type: 'column'
                     },
                     title: {
-                        text: 'Browser market shares. January, 2015 to May, 2015'
+                        text: 'Le nombre de partage par twit'
                     },
                     subtitle: {
-                        text: 'Click the columns to view versions. Source: <a href="http://netmarketshare.com">netmarketshare.com</a>.'
+                        text: ''
                     },
                     xAxis: {
                         type: 'category'
@@ -142,24 +163,58 @@
                         pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
                     }
                 };
+                //chart 3
+                var optionsHighCharts3 = {
+                    chart: {
+                        type: 'area'
+                    },
+                    title: {
+                        text: 'Evolution du nombre de tweets publiés dans la semaine'
+                    },
+                    xAxis: {
+                        allowDecimals: false,
+                        labels: {
+                            formatter: function () {
+                                return this.value; // clean, unformatted number for year
+                            }
+                        }
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Nombre de tweets publiés'
+                        },
+                        labels: {
+                            formatter: function () {
+                                return this.value;
+                            }
+                        }
+                    },
+                    tooltip: {
+                        pointFormat: '<b>{point.y:,.0f}</b> tweets publiés le jour n°{point.x}'
+                    },
+                    plotOptions: {
+                        area: {
+                            pointStart: 1,
+                            marker: {
+                                enabled: false,
+                                symbol: 'circle',
+                                radius: 2,
+                                states: {
+                                    hover: {
+                                        enabled: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
 
-                // Quand on récupère une liste de tweets, on met dans des graphs
+                // Quand on récupère des datas, on met dans des graphs
                 socket.on('search', function(data) {
                     optionsHighCharts.series = [{
                         type: 'pie',
                         name: 'Browser share',
-                        data: [
-                            ['Anglais', 45.0],
-                            ['Français', 26.8],
-                            {
-                                name: 'Japonais',
-                                y: 12.8,
-                                sliced: true,
-                                selected: true
-                            },
-                            ['Espagnole', 8.5],
-                            ['Chinois', 6.2],
-                        ]
+                        data: data.first
                     }];
                     optionsHighCharts2.series = [{
                         name: 'Brands',
@@ -189,10 +244,45 @@
                             y: 0.2,
                             drilldown: null
                         }]
+                    }];      
+                    optionsHighCharts3.series = [{
+                        name: 'Volume',
+                        data: data.third
+                        /*[
+                            5113, 5113, 4954, 4804, 4761, 4717, 4368
+                        ]*/
                     }];
-            
+
+                    //Camembert
                     Highcharts.chart('container', optionsHighCharts);
+                    //Colonne
                     Highcharts.chart('container2', optionsHighCharts2);
+                    //Courbe
+                    Highcharts.chart('container3', optionsHighCharts3);
+                    //Tableau
+                    var tbody = "";
+                    $.each(data.fourth, function(key, value){
+                        tbody += "<tr>";
+                            var date = new Date(value.created_at);
+                            var s = date.getSeconds();
+                            var m = date.getMinutes();
+                            var h = date.getHours();
+                            var dd = date.getDate();
+                            var mm = date.getMonth()+1; //January is 0!
+                            var yyyy = date.getFullYear();
+                            if(dd<10)
+                                dd = '0'+dd;
+                            if(mm<10)
+                                mm = '0'+mm;
+
+                            tbody += "<td>"+mm + '/' + dd + '/' + yyyy+" à "+h+"h"+m+"m"+s+"s</td>";
+                            tbody += "<td>"+value.user.name+"</td>";
+                            tbody += "<td>"+value.text+"</td>";
+                            tbody += "<td>"+value.favorite_count+"</td>";
+                            tbody += "<td>"+value.retweet_count+"</td>";
+                        tbody += "</tr>"
+                    });
+                    $("#container4 table tbody").html(tbody);
                 });
             });
         </script>       
