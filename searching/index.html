@@ -57,7 +57,22 @@
         <div id="container" style="height: 400px"></div>
         <div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
         <div id="container3" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="container4" style="min-width: 310px; height: 400px; margin: 0 auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Utilisateur</th>
+                        <th>Message</th>
+                        <th>Nombre de like</th>
+                        <th>Nombre de retweet</th>
+                    </tr>
+                </thead>
+                <tbody>
 
+                </tbody>
+            </table>
+        </div>
         
 
         <script type="text/javascript">
@@ -193,7 +208,7 @@
                     }
                 };
 
-                // Quand on récupère une liste de tweets, on met dans des graphs
+                // Quand on récupère des datas, on met dans des graphs
                 socket.on('search', function(data) {
                     optionsHighCharts.series = [{
                         type: 'pie',
@@ -237,9 +252,24 @@
                         ]*/
                     }];
 
+                    //Camembert
                     Highcharts.chart('container', optionsHighCharts);
+                    //Colonne
                     Highcharts.chart('container2', optionsHighCharts2);
+                    //Courbe
                     Highcharts.chart('container3', optionsHighCharts3);
+                    //Tableau
+                    var tbody = "";
+                    $.each(data.fourth, function(key, value){
+                        tbody += "<tr>";
+                            tbody += "<td>"+value.created_at+"</td>";
+                            tbody += "<td>"+value.user.name+"</td>";
+                            tbody += "<td>"+value.text+"</td>";
+                            tbody += "<td>"+value.favorite_count+"</td>";
+                            tbody += "<td>"+value.retweet_count+"</td>";
+                        tbody += "</tr>"
+                    });
+                    $("#container4 table tbody").html(tbody);
                 });
             });
         </script>       

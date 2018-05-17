@@ -74,6 +74,7 @@ io.sockets.on('connection', function (socket) {
                     //console.log(err);
                 });
                 
+                //Insertion des users à l'origine des tweets en BDD
                 data.statuses.forEach(function(data){
                     data.user._id = data.user.id;
                     collectionUser.insertMany([data.user], function(err, doc){
@@ -103,10 +104,9 @@ io.sockets.on('connection', function (socket) {
                         data.selected = false;
                     });
                     socket.highcharts.first = result;
-                    //socket.emit('search', socket.highcharts); //TODO : virer cette ligne pour n'envoyer qu'à la fin des requetes
                 });
 
-                //Affichage des tweets de la BDD
+                //Affichage du nombre de retweets de la BDD
                 collectionTweet.find({
                     text: new RegExp(datas.keyword)
                 })
@@ -121,6 +121,7 @@ io.sockets.on('connection', function (socket) {
                     //socket.highcharts.second = result;                       
                 });
 
+                //Evolution du nombre de tweet dans la semaine
                 collectionTweet.aggregate([
                     {
                         "$project": {
@@ -163,8 +164,28 @@ io.sockets.on('connection', function (socket) {
                         list.push(data.count);
                     });
                     socket.highcharts.third = list; 
+                });
+
+                //Affichage des 10 derniers tweets les plus populaires
+                collectionTweet.find({
+                    text: new RegExp(datas.keyword)
+                })
+                .project({ 
+                    _id: 0, 
+                    created_at: 1,
+                    text: 1,
+                    "user.name": 1,
+                    favorite_count: 1,
+                    retweet_count: 1
+                })
+                .sort({ favorite_count: -1 })
+                .limit(3)
+                .toArray(function(err, result) {
+                    if(err) 
+                        throw err;
+                    socket.highcharts.fourth = result;
                     console.log(socket.highcharts);
-                    socket.emit('search', socket.highcharts);
+                    socket.emit('search', socket.highcharts);                   
                 });
 
                 //TODO : faire envoyer le socket.highcharts seulement APRES les requetes BDD
