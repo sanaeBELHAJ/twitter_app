@@ -41,10 +41,11 @@ io.sockets.on("connection", function(socket) {
   socket.on("search", async function(datas) {
     var params = {};
     params.q = datas.keyword;
-    if (datas.date_pub != "") params.q += " since:" + datas.date_pub;
-    if (datas.quantity != "") params.count = datas.quantity;
-    if (datas.type != "") params.result_type = datas.type;
-    //console.log(params);
+    if (typeof datas.date_pub !== "undefined" && datas.date_pub != "") params.q += " since:" + datas.date_pub;
+    if (typeof datas.quantity !== "undefined" && datas.quantity != "") params.count = datas.quantity;
+    if (typeof datas.type !== "undefined" && datas.type != "") params.result_type = datas.type;
+    if (typeof datas.lang !== "undefined" && datas.lang != "") params.lang = datas.lang;
+    console.log(params);
 
     // Récupération des tweets de l'API
     await T.get("search/tweets", params, async function(err, data, response) {
@@ -73,6 +74,7 @@ io.sockets.on("connection", function(socket) {
             //console.log(err);
           });
         });
+
         //GRAPHE 1 : Affichage des meilleurs retweets de la BDD
         collectionTweet
           .find({
@@ -149,7 +151,7 @@ io.sockets.on("connection", function(socket) {
           ])
           .toArray(function(err, result) {
             if (err) throw err;
-            console.log(result);
+
             var list = [];
             result.forEach(function(data) {
               list.push(data.count);
@@ -177,11 +179,9 @@ io.sockets.on("connection", function(socket) {
           .toArray(function(err, result) {
             if (err) throw err;
             socket.highcharts.fourth = result;
-            //console.log(socket.highcharts);
-            socket.emit("search", socket.highcharts);
           });
 
-        //Affichage des 10 derniers tweets les plus populaires
+        //GRAPHE 5 : Podium des meilleurs utilisateurs
         collectionUser
           .find({
             followers_count: { $gte: 50000 }
@@ -197,13 +197,14 @@ io.sockets.on("connection", function(socket) {
           .toArray(function(err, result) {
             if (err) throw err;
 
-            socket.highcharts.followers_count = [];
-            socket.highcharts.tweets_count = [];
-
             result.forEach(function(data) {
-              socket.highcharts.followers_count.push(data.followers_count);
-              socket.highcharts.tweets_count.push(data.statuses_count);
+              data.data = [data.followers_count, data.statuses_count];
+              delete data.followers_count;
+              delete data.statuses_count;
             });
+            console.log(result);
+            socket.highcharts.fifth = result;
+            socket.emit("search", socket.highcharts);
           });
 
         //TODO : faire envoyer le socket.highcharts seulement APRES les requetes BDD
