@@ -27,9 +27,10 @@ T.get('account/verify_credentials', {
 
 
 //BDD
-const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/twitter');
-var conn = mongoose.connection;
+const MongoClient = require('mongodb').MongoClient;
+const url = 'mongodb://localhost:27017';
+const dbName = 'twitter';
+
 
 /* ******************** */
 
@@ -40,40 +41,74 @@ app.get('/', function (req, res) {
 
 io.sockets.on('connection', function (socket) {
 
-  //Recherche
-  socket.on('search', async function (datas) {
-    var params = {};
+    //Recherche
+    socket.on('search', async function(datas) {
+        var params = {};
+        params.q = datas.keyword;
+        if(datas.date_pub != "")
+            params.q += " since:"+datas.date_pub;
+        if(datas.quantity != "")
+            params.count = datas.quantity;
+        if(datas.type != "")
+            params.result_type = datas.type;
+        //console.log(params);
 
-    params.q = datas.keyword;
+        // Récupération des tweets de l'API
+        await T.get('search/tweets', params, insertData);
 
-    if (datas.date_pub != "")
-      params.q += " since:" + datas.date_pub;
+        //Affichage des tweets contenant ce mot
+        MongoClient.connect(url, function(err, client) {         
+            const db = client.db(dbName);
+            const collection = db.collection('tweet');
 
-    if (datas.quantity != "")
-      params.count = datas.quantity;
+            collection.find({
+                            text: new RegExp(datas.keyword)
+                        })
+                        .project({ 
+                            _id: 0,
+                            lang: 1,
+                            retweet_count: 1     
+                        })
+                        .toArray(function(err, result) {
+                            if(err) 
+                                throw err;
+                            result.forEach(function(data){
+                                data.name = data.lang;
+                                delete data.lang;
+                                data.value = data.retweet_count;
+                                delete data.retweet_count;
+                            });
+                            console.log(result);
+                            socket.emit('search', result);
+                        });
+            client.close();
+        });
+        
+        
+    });
 
-    if (datas.type != "")
-      params.result_type = datas.type;
 
-    console.log(params);
+    //Insertion des tweets en BDD
+    async function insertData(err, data, response){
+        
+        //ID de clé primaire = ID du tweet
+        data.statuses.forEach(function(element){
+            element._id = element.id;
+        });
 
-    // get is the function to search the tweet which three parameters 'search/tweets',params and a callback function.
-    //T.get('search/tweets', params, searchedData);
+        //Connexion à la BDD
+        MongoClient.connect(url, function(err, client) {         
+            const db = client.db(dbName);
+            const collection = db.collection('tweet');
 
-    socket.emit('search', {});
-  });
+            //Insertion des tweets en BDD
+            collection.insertMany(data.statuses, function(err, result) {
+                //console.log("INSERTION OK");
+            });
+            
+            client.close();
+        });
+    }
 });
-
-
-// searchedData function is a callback function which returns the data when we make a search
-function searchedData(err, data, response) {
-  //Insertion des tweets en BDD
-  data.statuses.forEach(function (element) {
-    element._id = element.id;
-    //element.keyword = ;
-    //conn.collection('tweet').insert(element);
-    console.log(element);
-  });
-}
 
 server.listen(8080);

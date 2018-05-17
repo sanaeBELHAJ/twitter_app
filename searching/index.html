@@ -45,7 +45,7 @@
 
         <!-- <script type="text/javascript" src="qry.js"></script> -->
 
-        <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script> 
+        <script src="searching/jquery.min.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         <script src="searching/code/highcharts.js"></script>
         <script src="searching/code/highcharts-3d.js"></script>
@@ -55,100 +55,96 @@
         <div id="container" style="height: 400px"></div>
         <div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
+        <script type="text/javascript">
+            $(document).ready(function(){
+                /* SOCKET */         
+                var socket = io.connect('http://localhost:8080');
+
+                $('#formulaire').submit(function (event) {
+                    event.preventDefault();
+
+                    var inputs = $('#formulaire :input');
+                    var values = {};
+
+                    inputs.each(function() {
+                        values[this.name] = $(this).val();
+                    });
         
-                <script type="text/javascript">
-                    $(document).ready(function(){
-                            
-                            /* SOCKET */         
-                            var socket = io.connect('http://localhost:8080');
-            
-                            $('#formulaire').submit(function (event) {
-                                event.preventDefault();
-            
-                                var inputs = $('#formulaire :input');
-                                var values = {};
-            
-                                inputs.each(function() {
-                                    values[this.name] = $(this).val();
-                                });
-                    
-                                if(values.keyword != "")
-                                    socket.emit('search', values);
-                    
-                                return false;
-                            });
-            
-                            /* DATAVISUALISATION */
-                            //chart 1
-                            var optionsHighCharts = {
-                                chart: {
-                                    type: 'pie',
-                                    options3d: {
-                                        enabled: true,
-                                        alpha: 45,
-                                        beta: 0
-                                    }
-                                },
-                                title: {
-                                    text: 'Les langues les plus utilisant de ce mot'
-                                },
-                                tooltip: {
-                                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-                                },
-                                plotOptions: {
-                                    pie: {
-                                        allowPointSelect: true,
-                                        cursor: 'pointer',
-                                        depth: 35,
-                                        dataLabels: {
-                                            enabled: true,
-                                            format: '{point.name}'
-                                        }
-                                    }
-                                }
-                            };
-                            //chart2
-                            var optionsHighCharts2 = {
-                                chart: {
-                                    type: 'column'
-                                },
-                                title: {
-                                    text: 'Browser market shares. January, 2015 to May, 2015'
-                                },
-                                subtitle: {
-                                    text: 'Click the columns to view versions. Source: <a href="http://netmarketshare.com">netmarketshare.com</a>.'
-                                },
-                                xAxis: {
-                                    type: 'category'
-                                },
-                                yAxis: {
-                                    title: {
-                                        text: 'Nombre de partage'
-                                    }
+                    if(values.keyword != "")
+                        socket.emit('search', values);
+        
+                    return false;
+                });
 
-                                },
-                                legend: {
-                                    enabled: false
-                                },
-                                plotOptions: {
-                                    series: {
-                                        borderWidth: 0,
-                                        dataLabels: {
-                                            enabled: true,
-                                            format: '{point.y:.1f}%'
-                                        }
-                                    }
-                                },
+                /* DATAVISUALISATION */
+                //chart 1
+                var optionsHighCharts = {
+                    chart: {
+                        type: 'pie',
+                        options3d: {
+                            enabled: true,
+                            alpha: 45,
+                            beta: 0
+                        }
+                    },
+                    title: {
+                        text: 'Les langues les plus utilisant de ce mot'
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            depth: 35,
+                            dataLabels: {
+                                enabled: true,
+                                format: '{point.name}'
+                            }
+                        }
+                    }
+                };
+                //chart2
+                var optionsHighCharts2 = {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: 'Browser market shares. January, 2015 to May, 2015'
+                    },
+                    subtitle: {
+                        text: 'Click the columns to view versions. Source: <a href="http://netmarketshare.com">netmarketshare.com</a>.'
+                    },
+                    xAxis: {
+                        type: 'category'
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Nombre de partage'
+                        }
+                    },
+                    legend: {
+                        enabled: false
+                    },
+                    plotOptions: {
+                        series: {
+                            borderWidth: 0,
+                            dataLabels: {
+                                enabled: true,
+                                format: '{point.y:.1f}%'
+                            }
+                        }
+                    },
 
-                                tooltip: {
-                                    headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-                                    pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
-                                }
-                        };
- 
+                    tooltip: {
+                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
+                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
+                    }
+                };
+
                 // Quand on récupère une liste de tweets, on met dans des graphs
                 socket.on('search', function(data) {
-                    
                     optionsHighCharts.series = [{
                         type: 'pie',
                         name: 'Browser share',
@@ -194,11 +190,11 @@
                             drilldown: null
                         }]
                     }];
-                   
+            
                     Highcharts.chart('container', optionsHighCharts);
                     Highcharts.chart('container2', optionsHighCharts2);
                 });
             });
-                </script>       
+        </script>       
     </body>
 </html>
