@@ -70,11 +70,15 @@ io.sockets.on('connection', function (socket) {
                 const collectionUser = db.collection('user');
 
                 //Insertion des tweets en BDD
-                collectionTweet.insertMany(data.statuses);
+                collectionTweet.insertMany(data.statuses, function(err, doc){
+                    //console.log(err);
+                });
                 
                 data.statuses.forEach(function(data){
                     data.user._id = data.user.id;
-                    collectionUser.insertMany([data.user]);
+                    collectionUser.insertMany([data.user], function(err, doc){
+                        //console.log(err);
+                    });
                 });
 
                 //Affichage des meilleurs retweets de la BDD
