@@ -3,6 +3,11 @@
 	<head>
 		<meta charset="utf-8" />
         <title>Twitter big data</title>
+        <style>
+            .container{
+                display: none;
+            }
+        </style>
 	</head>
     <body>
         <div id="apitweet">
@@ -48,10 +53,10 @@
         <script src="searching/code/modules/drilldown.js"></script>
         <script src="searching/code/modules/export-data.js"></script>
         
-        <div id="container" style="height: 400px"></div>
-        <div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        <div id="container3" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        <div id="container4" style="min-width: 310px; height: 400px; margin: 0 auto;">
+        <div id="container" class="container" style="height: 400px"></div>
+        <div id="container2" class="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="container3" class="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="container4" class="container" style="min-width: 310px; height: 400px; margin: 0 auto;">
             <h3 style="text-align: center">Top 10 des meilleurs tweets sur ce mot-clé</h3>
             <table>
                 <thead>
@@ -68,8 +73,8 @@
                 </tbody>
             </table>
         </div>
-        <div id="container5" style="min-width: 310px;  height: 400px; margin: 0 auto; display:inline-block;"></div>
-        <div id="container5bis" style="min-width: 310px;  height: 400px; margin: 0 auto; display:inline-block;"></div>        
+        <div id="container5" class="container" style="min-width: 310px;  height: 400px; margin: 0 auto; display:inline-block;"></div>
+        <div id="container5bis" class="container" style="min-width: 310px;  height: 400px; margin: 0 auto; display:inline-block;"></div>        
 
         <script type="text/javascript">
             $(document).ready(function(){
@@ -255,6 +260,8 @@
 
                 // Quand on récupère des datas, on met dans des graphs
                 socket.on('search', function(data) {
+                    $(".container").show();
+                    
                     optionsHighCharts.series = [{
                         type: 'pie',
                         name: 'Browser share',

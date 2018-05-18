@@ -154,14 +154,14 @@ io.sockets.on("connection", function(socket) {
           .limit(20)
           .toArray(function(err, result) {
             if (err) throw err;
-            console.log(result)
+            
             result.forEach(function(data) {
                 data.name = data.user.name;
                 data.y = data.retweet_count;
                 delete data.retweet_count;
                 delete data.user;
             });
-            console.log(result)
+            
             socket.highcharts.second = result;
             socket.emit("search", socket.highcharts);
           });
