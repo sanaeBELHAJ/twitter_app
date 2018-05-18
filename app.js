@@ -41,10 +41,14 @@ io.sockets.on("connection", function(socket) {
   socket.on("search", async function(datas) {
     var params = {};
     params.q = datas.keyword;
-    if (typeof datas.date_pub !== "undefined" && datas.date_pub != "") params.q += " since:" + datas.date_pub;
-    if (typeof datas.quantity !== "undefined" && datas.quantity != "") params.count = datas.quantity;
-    if (typeof datas.type !== "undefined" && datas.type != "") params.result_type = datas.type;
-    if (typeof datas.lang !== "undefined" && datas.lang != "") params.lang = datas.lang;
+    if (typeof datas.date_pub !== "undefined" && datas.date_pub != "")
+      params.q += " since:" + datas.date_pub;
+    if (typeof datas.quantity !== "undefined" && datas.quantity != "")
+      params.count = datas.quantity;
+    if (typeof datas.type !== "undefined" && datas.type != "")
+      params.result_type = datas.type;
+    if (typeof datas.lang !== "undefined" && datas.lang != "")
+      params.lang = datas.lang;
     console.log(params);
 
     // Récupération des tweets de l'API
