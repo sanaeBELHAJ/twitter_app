@@ -34,6 +34,7 @@
                     <input type="submit" value="Envoyer">
                 </fieldset>
             </form>
+            <p>Nombre de tweets récupérés : <b><span id="stats"></span></b></p>
         </div>
 
         <!-- <script type="text/javascript" src="qry.js"></script> -->
@@ -67,8 +68,8 @@
                 </tbody>
             </table>
         </div>
-        <div id="container5" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        
+        <div id="container5" style="min-width: 310px;  height: 400px; margin: 0 auto; display:inline-block;"></div>
+        <div id="container5bis" style="min-width: 310px;  height: 400px; margin: 0 auto; display:inline-block;"></div>        
 
         <script type="text/javascript">
             $(document).ready(function(){
@@ -208,6 +209,32 @@
                     xAxis: {
                         categories: [
                             'Followers',
+                        ],
+                        crosshair: true
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: ''
+                        }
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    }
+                };
+                //chart 5 bis
+                var optionsHighCharts5bis = {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: 'Tweets\' count of most popular users'
+                    },
+                    xAxis: {
+                        categories: [
                             'Publications',
                         ],
                         crosshair: true
@@ -242,8 +269,11 @@
                         name: 'Volume',
                         data: data.third
                     }];
-                    optionsHighCharts5.series = data.fifth;
+                    optionsHighCharts5.series = data.fifth;                    
+                    optionsHighCharts5bis.series = data.fifth_bis;
 
+                    //Graph 0 : Statistiques
+                    $("#stats").html(data.zero);
                     //Graph 1 : Camembert
                     Highcharts.chart('container', optionsHighCharts);
                     //Graph 2 : Colonne
@@ -276,6 +306,9 @@
                     $("#container4 table tbody").html(tbody);
                     //Graph 5 : Colonne
                     Highcharts.chart('container5', optionsHighCharts5);
+                    //Graph 5 : Colonne BIS
+                    Highcharts.chart('container5bis', optionsHighCharts5bis);
+
                 });
             });
         </script>       
