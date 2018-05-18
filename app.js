@@ -157,9 +157,10 @@ io.sockets.on("connection", function(socket) {
             if (err) throw err;
             console.log(result)
             result.forEach(function(data) {
-                data.data = [{name: data.user.name, y: data.retweet_count}];
-                delete data.user.name;
+                data.name = data.user.name;
+                data.y = data.retweet_count;
                 delete data.retweet_count;
+                delete data.user;
             });
             console.log(result)
             socket.highcharts.second = result;
