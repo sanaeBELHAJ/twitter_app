@@ -3,6 +3,11 @@
 	<head>
 		<meta charset="utf-8" />
         <title>Twitter big data</title>
+        <style>
+            .container{
+                display: none;
+            }
+        </style>
 	</head>
     <body>
         <div id="apitweet">
@@ -34,6 +39,7 @@
                     <input type="submit" value="Envoyer">
                 </fieldset>
             </form>
+            <p>Nombre de tweets récupérés : <b><span id="stats"></span></b></p>
         </div>
 
         <!-- <script type="text/javascript" src="qry.js"></script> -->
@@ -47,10 +53,10 @@
         <script src="searching/code/modules/drilldown.js"></script>
         <script src="searching/code/modules/export-data.js"></script>
         
-        <div id="container" style="height: 400px"></div>
-        <div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        <div id="container3" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        <div id="container4" style="min-width: 310px; height: 400px; margin: 0 auto;">
+        <div id="container" class="container" style="height: 400px"></div>
+        <div id="container2" class="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="container3" class="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <div id="container4" class="container" style="min-width: 310px; height: 400px; margin: 0 auto;">
             <h3 style="text-align: center">Top 10 des meilleurs tweets sur ce mot-clé</h3>
             <table>
                 <thead>
@@ -67,8 +73,8 @@
                 </tbody>
             </table>
         </div>
-        <div id="container5" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        
+        <div id="container5" class="container" style="min-width: 310px;  height: 400px; margin: 0 auto; display:inline-block;"></div>
+        <div id="container5bis" class="container" style="min-width: 310px;  height: 400px; margin: 0 auto; display:inline-block;"></div>        
 
         <script type="text/javascript">
             $(document).ready(function(){
@@ -126,7 +132,7 @@
                         type: 'column'
                     },
                     title: {
-                        text: 'Le nombre de partage par twit'
+                        text: 'Nombre de retweet par tweet'
                     },
                     subtitle: {
                         text: ''
@@ -147,14 +153,9 @@
                             borderWidth: 0,
                             dataLabels: {
                                 enabled: true,
-                                format: '{point.y:.1f}%'
+                                format: '{point.y:.0f}'
                             }
                         }
-                    },
-
-                    tooltip: {
-                        headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-                        pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
                     }
                 };
                 //chart 3
@@ -213,6 +214,32 @@
                     xAxis: {
                         categories: [
                             'Followers',
+                        ],
+                        crosshair: true
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: ''
+                        }
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    }
+                };
+                //chart 5 bis
+                var optionsHighCharts5bis = {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: 'Tweets\' count of most popular users'
+                    },
+                    xAxis: {
+                        categories: [
                             'Publications',
                         ],
                         crosshair: true
@@ -233,46 +260,27 @@
 
                 // Quand on récupère des datas, on met dans des graphs
                 socket.on('search', function(data) {
+                    $(".container").show();
+                    
                     optionsHighCharts.series = [{
                         type: 'pie',
                         name: 'Browser share',
                         data: data.first
                     }];
                     optionsHighCharts2.series = [{
-                        name: 'Brands',
+                        name: 'Retweets count',
                         colorByPoint: true,
-                        data: [{
-                            name: 'Pierre',
-                            y: 56.33,
-                            drilldown: 'Pierre'
-                        }, {
-                            name: 'Mahmoud',
-                            y: 24.03,
-                            drilldown: 'Mahmoud'
-                        }, {
-                            name: 'Jack',
-                            y: 10.38,
-                            drilldown: 'Jack'
-                        }, {
-                            name: 'Rémie',
-                            y: 4.77,
-                            drilldown: 'Rémie'
-                        }, {
-                            name: 'Nancy',
-                            y: 0.91,
-                            drilldown: 'Nancy'
-                        }, {
-                            name: 'Guillaume',
-                            y: 0.2,
-                            drilldown: null
-                        }]
+                        data: data.second
                     }];      
                     optionsHighCharts3.series = [{
                         name: 'Volume',
                         data: data.third
                     }];
-                    optionsHighCharts5.series = data.fifth;
+                    optionsHighCharts5.series = data.fifth;                    
+                    optionsHighCharts5bis.series = data.fifth_bis;
 
+                    //Graph 0 : Statistiques
+                    $("#stats").html(data.zero);
                     //Graph 1 : Camembert
                     Highcharts.chart('container', optionsHighCharts);
                     //Graph 2 : Colonne
@@ -305,6 +313,9 @@
                     $("#container4 table tbody").html(tbody);
                     //Graph 5 : Colonne
                     Highcharts.chart('container5', optionsHighCharts5);
+                    //Graph 5 : Colonne BIS
+                    Highcharts.chart('container5bis', optionsHighCharts5bis);
+
                 });
             });
         </script>       

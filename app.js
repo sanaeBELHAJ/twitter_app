@@ -61,7 +61,7 @@ io.sockets.on("connection", function(socket) {
         element.created_at = new Date(element.created_at);
       });
       //Connexion à la BDD
-      MongoClient.connect(url, function(err, client) {
+      MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
         const db = client.db(dbName);
         const collectionTweet = db.collection("tweet");
         const collectionUser = db.collection("user");
@@ -78,6 +78,20 @@ io.sockets.on("connection", function(socket) {
             //console.log(err);
           });
         });
+
+        //GRAPHE 0 : Statistiques de la recherche
+        collectionTweet
+          .find({
+            text: new RegExp(datas.keyword)
+          })
+          .project({
+            _id: 1
+          })
+          .toArray(function(err, result) {
+            if (err) throw err;
+
+            socket.highcharts.zero = result.length;
+          });
 
         //GRAPHE 1 : Affichage des meilleurs retweets de la BDD
         collectionTweet
@@ -102,7 +116,8 @@ io.sockets.on("connection", function(socket) {
             });
             socket.highcharts.first = result;
           });
-        /*  collectionTweet.distinct(
+          
+        /*collectionTweet.distinct(
           "lang",
           { text: new RegExp(datas.keyword) },
           function(err, result) {
@@ -120,7 +135,6 @@ io.sockets.on("connection", function(socket) {
                   data.name = data.lang;
                   delete data.lang;
                   console.log(count);
-
                   data.value = count;
                   delete count;
                 }
@@ -137,12 +151,23 @@ io.sockets.on("connection", function(socket) {
           })
           .project({
             _id: 0,
-            lang: 1,
-            retweet_count: 1
+            retweet_count: 1,
+            "user.name": 1
           })
+          .sort({ retweet_count: -1 })
+          .limit(20)
           .toArray(function(err, result) {
             if (err) throw err;
-            //socket.highcharts.second = result;
+            
+            result.forEach(function(data) {
+                data.name = data.user.name;
+                data.y = data.retweet_count;
+                delete data.retweet_count;
+                delete data.user;
+            });
+            
+            socket.highcharts.second = result;
+            socket.emit("search", socket.highcharts);
           });
 
         //GRAPHE 3 :Evolution du nombre de tweet dans la semaine
@@ -221,7 +246,30 @@ io.sockets.on("connection", function(socket) {
           .project({
             _id: 0,
             name: 1,
-            followers_count: 1,
+            followers_count: 1
+          })
+          .sort({ followers_count: -1 })
+          .limit(10)
+          .toArray(function(err, result) {
+            if (err) throw err;
+
+            result.forEach(function(data) {
+              data.data = [data.followers_count];
+              delete data.followers_count;
+            });
+
+            socket.highcharts.fifth = result;
+            socket.emit("search", socket.highcharts);
+          });
+
+          //GRAPHE 5 BIS : Podium des meilleurs utilisateurs
+          collectionUser
+          .find({
+            followers_count: { $gte: 50000 }
+          })
+          .project({
+            _id: 0,
+            name: 1,
             statuses_count: 1
           })
           .sort({ followers_count: -1 })
@@ -230,12 +278,11 @@ io.sockets.on("connection", function(socket) {
             if (err) throw err;
 
             result.forEach(function(data) {
-              data.data = [data.followers_count, data.statuses_count];
-              delete data.followers_count;
+              data.data = [data.statuses_count];
               delete data.statuses_count;
             });
-            console.log(result);
-            socket.highcharts.fifth = result;
+
+            socket.highcharts.fifth_bis = result;
             socket.emit("search", socket.highcharts);
           });
 
