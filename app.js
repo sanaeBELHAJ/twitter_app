@@ -98,7 +98,8 @@ io.sockets.on("connection", function(socket) {
             });
             socket.highcharts.first = result;
           });
-        collectionTweet.distinct(
+          
+        /*collectionTweet.distinct(
           "lang",
           { text: new RegExp(datas.keyword) },
           function(err, result) {
@@ -124,7 +125,7 @@ io.sockets.on("connection", function(socket) {
               console.log(data);
             });
           }
-        );
+        );*/
 
         //GRAPHE 2 : Affichage du nombre de retweets de la BDD
         collectionTweet
