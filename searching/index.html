@@ -126,7 +126,7 @@
                         type: 'column'
                     },
                     title: {
-                        text: 'Le nombre de partage par twit'
+                        text: 'Nombre de retweet par tweet'
                     },
                     subtitle: {
                         text: ''
@@ -241,31 +241,7 @@
                     optionsHighCharts2.series = [{
                         name: 'Brands',
                         colorByPoint: true,
-                        data: [{
-                            name: 'Pierre',
-                            y: 56.33,
-                            drilldown: 'Pierre'
-                        }, {
-                            name: 'Mahmoud',
-                            y: 24.03,
-                            drilldown: 'Mahmoud'
-                        }, {
-                            name: 'Jack',
-                            y: 10.38,
-                            drilldown: 'Jack'
-                        }, {
-                            name: 'Rémie',
-                            y: 4.77,
-                            drilldown: 'Rémie'
-                        }, {
-                            name: 'Nancy',
-                            y: 0.91,
-                            drilldown: 'Nancy'
-                        }, {
-                            name: 'Guillaume',
-                            y: 0.2,
-                            drilldown: null
-                        }]
+                        data: data.second
                     }];      
                     optionsHighCharts3.series = [{
                         name: 'Volume',

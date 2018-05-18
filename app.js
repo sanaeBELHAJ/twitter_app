@@ -57,7 +57,7 @@ io.sockets.on("connection", function(socket) {
         element.created_at = new Date(element.created_at);
       });
       //Connexion à la BDD
-      MongoClient.connect(url, function(err, client) {
+      MongoClient.connect(url, { useNewUrlParser: true }, function(err, client) {
         const db = client.db(dbName);
         const collectionTweet = db.collection("tweet");
         const collectionUser = db.collection("user");
@@ -134,12 +134,22 @@ io.sockets.on("connection", function(socket) {
           })
           .project({
             _id: 0,
-            lang: 1,
-            retweet_count: 1
+            retweet_count: 1,
+            "user.name": 1
           })
+          .sort({ retweet_count: -1 })
+          .limit(20)
           .toArray(function(err, result) {
             if (err) throw err;
-            //socket.highcharts.second = result;
+            console.log(result)
+            result.forEach(function(data) {
+                data.data = [{name: data.user.name, y: data.retweet_count}];
+                delete data.user.name;
+                delete data.retweet_count;
+            });
+            console.log(result)
+            socket.highcharts.second = result;
+            socket.emit("search", socket.highcharts);
           });
 
         //GRAPHE 3 :Evolution du nombre de tweet dans la semaine
@@ -222,7 +232,7 @@ io.sockets.on("connection", function(socket) {
             statuses_count: 1
           })
           .sort({ followers_count: -1 })
-          .limit(3)
+          .limit(10)
           .toArray(function(err, result) {
             if (err) throw err;
 
@@ -231,7 +241,6 @@ io.sockets.on("connection", function(socket) {
               delete data.followers_count;
               delete data.statuses_count;
             });
-            console.log(result);
             socket.highcharts.fifth = result;
             socket.emit("search", socket.highcharts);
           });
