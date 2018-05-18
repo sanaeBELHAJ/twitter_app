@@ -75,6 +75,20 @@ io.sockets.on("connection", function(socket) {
           });
         });
 
+        //GRAPHE 0 : Statistiques de la recherche
+        collectionTweet
+          .find({
+            text: new RegExp(datas.keyword)
+          })
+          .project({
+            _id: 1
+          })
+          .toArray(function(err, result) {
+            if (err) throw err;
+
+            socket.highcharts.zero = result.length;
+          });
+
         //GRAPHE 1 : Affichage des meilleurs retweets de la BDD
         collectionTweet
           .find({
@@ -228,8 +242,7 @@ io.sockets.on("connection", function(socket) {
           .project({
             _id: 0,
             name: 1,
-            followers_count: 1,
-            statuses_count: 1
+            followers_count: 1
           })
           .sort({ followers_count: -1 })
           .limit(10)
@@ -237,11 +250,35 @@ io.sockets.on("connection", function(socket) {
             if (err) throw err;
 
             result.forEach(function(data) {
-              data.data = [data.followers_count, data.statuses_count];
+              data.data = [data.followers_count];
               delete data.followers_count;
+            });
+
+            socket.highcharts.fifth = result;
+            socket.emit("search", socket.highcharts);
+          });
+
+          //GRAPHE 5 BIS : Podium des meilleurs utilisateurs
+          collectionUser
+          .find({
+            followers_count: { $gte: 50000 }
+          })
+          .project({
+            _id: 0,
+            name: 1,
+            statuses_count: 1
+          })
+          .sort({ followers_count: -1 })
+          .limit(3)
+          .toArray(function(err, result) {
+            if (err) throw err;
+
+            result.forEach(function(data) {
+              data.data = [data.statuses_count];
               delete data.statuses_count;
             });
-            socket.highcharts.fifth = result;
+
+            socket.highcharts.fifth_bis = result;
             socket.emit("search", socket.highcharts);
           });
 
