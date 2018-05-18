@@ -131,7 +131,6 @@ io.sockets.on("connection", function(socket) {
                   data.name = data.lang;
                   delete data.lang;
                   console.log(count);
-
                   data.value = count;
                   delete count;
                 }
