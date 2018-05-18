@@ -73,8 +73,8 @@
                 </tbody>
             </table>
         </div>
-        <div id="container5" class="container" style="min-width: 310px;  height: 400px; margin: 0 auto; display:inline-block;"></div>
-        <div id="container5bis" class="container" style="min-width: 310px;  height: 400px; margin: 0 auto; display:inline-block;"></div>        
+        <div id="container5" class="container" style="width: 49%;  height: 400px; margin: 0 auto; display:inline-block;"></div>
+        <div id="container5bis" class="container" style="width: 49%;  height: 400px; margin: 0 auto; display:inline-block;"></div>        
 
         <script type="text/javascript">
             $(document).ready(function(){
@@ -261,7 +261,7 @@
                 // Quand on récupère des datas, on met dans des graphs
                 socket.on('search', function(data) {
                     $(".container").show();
-                    
+
                     optionsHighCharts.series = [{
                         type: 'pie',
                         name: 'Browser share',
